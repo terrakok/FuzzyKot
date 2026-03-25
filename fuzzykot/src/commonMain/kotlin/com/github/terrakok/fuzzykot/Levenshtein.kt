@@ -17,9 +17,9 @@ private data class EditOp(
 }
 
 internal data class MatchingBlock(
-    var spos: Int = 0,
-    var dpos: Int = 0,
-    var length: Int = 0
+    val spos: Int = 0,
+    val dpos: Int = 0,
+    val length: Int = 0
 ) {
     override fun toString(): String = "($spos,$dpos,$length)"
 }
@@ -243,10 +243,11 @@ private fun getMatchingBlocks(len1: Int, len2: Int, ops: Array<EditOp>): Array<M
         while (ops[o].type === EditType.KEEP && --i != 0) o++
         if (i == 0) break
         if (spos < ops[o].spos || dpos < ops[o].dpos) {
-            val mb = MatchingBlock()
-            mb.spos = spos
-            mb.dpos = dpos
-            mb.length = ops[o].spos - spos
+            val mb = MatchingBlock(
+                spos = spos,
+                dpos = dpos,
+                length = ops[o].spos - spos
+            )
             spos = ops[o].spos
             dpos = ops[o].dpos
             matchingBlocks[mbIndex++] = mb
@@ -277,17 +278,19 @@ private fun getMatchingBlocks(len1: Int, len2: Int, ops: Array<EditOp>): Array<M
     }
 
     if (spos < len1 || dpos < len2) {
-        val mb = MatchingBlock()
-        mb.spos = spos
-        mb.dpos = dpos
-        mb.length = len1 - spos
+        val mb = MatchingBlock(
+            spos = spos,
+            dpos = dpos,
+            length = len1 - spos
+        )
         matchingBlocks[mbIndex++] = mb
     }
 
-    val finalBlock = MatchingBlock()
-    finalBlock.spos = len1
-    finalBlock.dpos = len2
-    finalBlock.length = 0
+    val finalBlock = MatchingBlock(
+        spos = len1,
+        dpos = len2,
+        length = 0
+    )
     matchingBlocks[mbIndex] = finalBlock
 
     return matchingBlocks.filterNotNull().toTypedArray()

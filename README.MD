@@ -2,6 +2,8 @@
 
 Fuzzy string matching for Kotlin Multiplatform.
 
+![Sample App](media/screen.png)
+
 ## Usage
 
 FuzzyKot provides extension functions for `String` and `Collection<T>` for easy fuzzy matching and extraction.

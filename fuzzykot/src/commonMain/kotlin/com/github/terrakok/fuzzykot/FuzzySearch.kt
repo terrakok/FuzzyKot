@@ -189,6 +189,18 @@ fun String.weightedRatio(other: String, processor: (String) -> String = { it.low
     }
 }
 
+/**
+ * Finds matching blocks between two strings.
+ * Useful for highlighting matching pieces in fuzzy search results.
+ *
+ * @param other The string to compare against.
+ * @return A list of [IntRange] representing the matching parts in [other].
+ */
+fun String.fuzzyMatchingRanges(other: String): List<IntRange> =
+    getMatchingBlocks(this, other)
+        .filter { it.length > 0 && it.dpos < other.length }
+        .map { it.dpos until (it.dpos + it.length) }
+
 private fun processAndSort(input: String, processor: (String) -> String): String =
     processor(input).tokenize().sorted().joinToString(" ").trim()
 
