@@ -4,11 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -16,6 +17,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.github.terrakok.fuzzykot.ExtractedResult
 import com.github.terrakok.fuzzykot.extractSorted
 import com.github.terrakok.fuzzykot.fuzzyMatchingRanges
@@ -141,31 +143,64 @@ fun App() {
     }
 
     MaterialTheme {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
-                .windowInsetsPadding(WindowInsets.systemBars)
+                .background(Color(0xFFF5F5F5))
+                .windowInsetsPadding(WindowInsets.systemBars),
+            contentAlignment = Alignment.Center
         ) {
-            TextField(
-                value = query,
-                onValueChange = { query = it },
+            Column(
                 modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .widthIn(max = 600.dp)
                     .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text("Search quotes...") },
-                singleLine = true
-            )
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(16.dp))
+                    .background(Color.White, RoundedCornerShape(16.dp))
+                    .padding(vertical = 8.dp)
             ) {
-                items(results) { res ->
-                    Column {
-                        QuoteItem(res.string, query)
-                        Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    placeholder = {
+                        Text(
+                            "Search quotes...",
+                            style = MaterialTheme.typography.bodyLarge.copy(color = Color.Gray)
+                        )
+                    },
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 18.sp)
+                )
+
+                if (results.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(Color(0xFFE0E0E0))
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 400.dp),
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(results) { res ->
+                            QuoteItem(res.string, query)
+                        }
                     }
                 }
             }
