@@ -4,7 +4,7 @@ Fuzzy string matching for Kotlin Multiplatform.
 
 ![Sample App](media/screen.png)
 
-**Web demo:** https://github.com/terrakok/FuzzyKot
+**Web demo:** https://terrakok.github.io/FuzzyKot/
 
 ## Usage
 
