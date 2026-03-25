@@ -1,4 +1,15 @@
-# FuzzyKot
+```text
+                                        
+▗▄▄▄▖                    ▗▖ ▄▖          
+▐▛▀▀▘                    ▐▌▐▛       ▐▌  
+▐▌   ▐▌ ▐▌▐███▌▐███▌▝█ █▌▐▙█   ▟█▙ ▐███ 
+▐███ ▐▌ ▐▌  ▗▛   ▗▛  █▖█ ▐██  ▐▛ ▜▌ ▐▌  
+▐▌   ▐▌ ▐▌ ▗▛   ▗▛   ▐█▛ ▐▌▐▙ ▐▌ ▐▌ ▐▌  
+▐▌   ▐▙▄█▌▗█▄▄▖▗█▄▄▖  █▌ ▐▌ █▖▝█▄█▘ ▐▙▄ 
+▝▘    ▀▀▝▘▝▀▀▀▘▝▀▀▀▘  █  ▝▘ ▝▘ ▝▀▘   ▀▀ 
+                     █▌                 
+                                        
+```
 
 Fuzzy string matching for Kotlin Multiplatform.
 
@@ -6,11 +17,24 @@ Fuzzy string matching for Kotlin Multiplatform.
 
 **Web demo:** https://terrakok.github.io/FuzzyKot/
 
+FuzzyKot is designed to bring powerful and flexible fuzzy string matching to Kotlin Multiplatform projects. Whether you
+are building a search feature, data cleaning pipeline, or any application requiring robust string comparison, FuzzyKot
+provides a set of algorithms to handle typos, variations in word order, and partial matches with ease.
+
+### Why FuzzyKot?
+
+- **Multiplatform:** Support for Android, iOS, JVM, JS, Wasm, macOS, Linux, and Windows.
+- **Zero Dependencies:** Pure Kotlin implementation without any external dependencies, keeping your project lightweight.
+- **Versatile Algorithms:** Includes Simple Ratio, Partial Ratio, Token Sort/Set Ratios, and Weighted Ratio.
+- **Easy Extraction:** High-level API to extract the best matches from collections.
+- **Performance:** Optimized for speed and low memory footprint.
+
 ## Usage
 
 FuzzyKot provides extension functions for `String` and `Collection<T>` for easy fuzzy matching and extraction.
 
 ### Simple Ratio
+
 Calculates a simple Levenshtein distance ratio between two strings.
 
 ```kotlin
@@ -18,6 +42,7 @@ Calculates a simple Levenshtein distance ratio between two strings.
 ```
 
 ### Partial Ratio
+
 Finds the best match of the shorter string within the longer one.
 
 ```kotlin
@@ -25,6 +50,7 @@ Finds the best match of the shorter string within the longer one.
 ```
 
 ### Token Sort Ratio
+
 Tokens are split, sorted alphabetically, and then joined back to compare. This handles different word orders.
 
 ```kotlin
@@ -32,13 +58,16 @@ Tokens are split, sorted alphabetically, and then joined back to compare. This h
 ```
 
 ### Token Set Ratio
-Handles differences in token sets by comparing intersection and symmetric difference. This is robust against duplicate tokens.
+
+Handles differences in token sets by comparing intersection and symmetric difference. This is robust against duplicate
+tokens.
 
 ```kotlin
 "fuzzy was a bear".tokenSetRatio("fuzzy fuzzy was a bear") // 100
 ```
 
 ### Weighted Ratio
+
 Combines multiple algorithms with specific weights to give a better overall score.
 
 ```kotlin
@@ -46,6 +75,7 @@ Combines multiple algorithms with specific weights to give a better overall scor
 ```
 
 ### Matching Ranges
+
 Finds matching blocks between two strings. Useful for highlighting matching pieces in fuzzy search results.
 
 ```kotlin
@@ -53,6 +83,7 @@ Finds matching blocks between two strings. Useful for highlighting matching piec
 ```
 
 ### Extraction
+
 Extract the best matches from a collection of items.
 
 ```kotlin
@@ -69,6 +100,7 @@ val sortedMatches = options.extractSorted("new york")
 ```
 
 #### Custom Extraction
+
 You can customize how items are processed and which scorer is used.
 
 ```kotlin
