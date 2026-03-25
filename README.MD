@@ -4,6 +4,8 @@ Fuzzy string matching for Kotlin Multiplatform.
 
 ![Sample App](media/screen.png)
 
+**Web demo:** https://github.com/terrakok/FuzzyKot
+
 ## Usage
 
 FuzzyKot provides extension functions for `String` and `Collection<T>` for easy fuzzy matching and extraction.
@@ -41,6 +43,13 @@ Combines multiple algorithms with specific weights to give a better overall scor
 
 ```kotlin
 "The quick brown fox jumps over the lazy dog".weightedRatio("The quick brown fox jumps") // 60
+```
+
+### Matching Ranges
+Finds matching blocks between two strings. Useful for highlighting matching pieces in fuzzy search results.
+
+```kotlin
+"test".fuzzyMatchingRanges("this is a test!") // [10..13]
 ```
 
 ### Extraction
