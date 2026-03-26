@@ -39,6 +39,82 @@ implementation("com.github.terrakok:fuzzykot:[todo]")
 
 FuzzyKot provides easy-to-use APIs for fuzzy matching and extraction.
 
+### FuzzySearch
+
+The simplest way to use FuzzyKot is through the `FuzzySearch` extension functions. These functions use `MicroFuzz` as the default scoring algorithm.
+
+#### Basic Matching
+
+```kotlin
+import com.github.terrakok.fuzzykot.*
+
+// Get similarity score (0-100)
+val score = "Kotlin is awesome".ratio("kotlin")
+println("Score: $score") // 97
+
+// Get matching ranges for highlighting
+val ranges = "Kotlin is awesome".matchingRanges("kotlin")
+println("Ranges: $ranges") // [0..5]
+```
+
+#### Extraction from Collections
+
+```kotlin
+val choices = listOf("Kotlin", "Java", "Swift", "Python")
+
+// Get the top 2 matches
+val results = choices.extractTop("KOTLIN", limit = 2)
+
+results.forEach { 
+    println("${it.referent}: ${it.score}") 
+}
+// Output:
+// Kotlin: 100
+```
+
+**Available extraction methods:**
+- `extractAll(query, processor, scorer, cutoff)`
+- `extractSorted(query, processor, scorer, cutoff)`
+- `extractTop(query, limit, processor, scorer, cutoff)`
+- `extractOne(query, processor, scorer, cutoff)`
+
+### Levenshtein
+
+For more traditional fuzzy matching algorithms based on Levenshtein distance, use the `Levenshtein` object.
+
+#### Ratios
+
+```kotlin
+import com.github.terrakok.fuzzykot.Levenshtein
+
+Levenshtein.ratio("myself", "me") // 50
+Levenshtein.partialRatio("similar", "sim") // 100
+Levenshtein.tokenSortRatio("order word", "word order") // 100
+Levenshtein.tokenSetRatio("fuzzy fuzzy matching", "fuzzy matching") // 100
+```
+
+#### Available Algorithms
+
+- `ratio`: Simple Levenshtein distance ratio.
+- `partialRatio`: Best match of shorter string within longer string. Useful for finding substrings.
+- `tokenSortRatio`: Sorts tokens alphabetically before comparing. Handles variations in word order.
+- `tokenSetRatio`: Compares sets of tokens. Handles repeated words and variations in word order.
+- `weightedRatio`: A weighted combination of multiple ratios for a more balanced score.
+- `matchingRanges`: Finds the matching character ranges in the target string.
+
+### MicroFuzz
+
+You can also use the `MicroFuzz` object directly, which provides a fast and effective fuzzy matching algorithm designed for search-as-you-type interfaces.
+
+```kotlin
+import com.github.terrakok.fuzzykot.MicroFuzz
+
+val score = MicroFuzz.ratio("FuzzyKot", "fzkot") // 88
+```
+
+## Inspiration
+
+This library is inspired by [microfuzz](https://github.com/Nozbe/microfuzz) and the Levenshtein distance algorithm.
 
 ## License
 
