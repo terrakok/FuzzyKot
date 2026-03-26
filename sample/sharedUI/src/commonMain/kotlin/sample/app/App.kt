@@ -218,46 +218,16 @@ fun QuoteItem(text: String, query: String, score: Int) {
             AnnotatedString(text)
         } else {
             buildAnnotatedString {
-                val tokens = query.lowercase().split("\\s+".toRegex()).filter { it.length >= 2 }
-                val lowerText = text.lowercase()
-                val lowerQuery = query.lowercase()
-
-                val matchIndices = mutableListOf<IntRange>()
-
-                // Find query as a whole
-                var startIndex = lowerText.indexOf(lowerQuery)
-                while (startIndex != -1) {
-                    matchIndices.add(startIndex until (startIndex + lowerQuery.length))
-                    startIndex = lowerText.indexOf(lowerQuery, startIndex + 1)
-                }
-
-                // Also find tokens
-                for (token in tokens) {
-                    var tIndex = lowerText.indexOf(token)
-                    while (tIndex != -1) {
-                        matchIndices.add(tIndex until (tIndex + token.length))
-                        tIndex = lowerText.indexOf(token, tIndex + 1)
-                    }
-                }
-
-                // Find fuzzy matches
-                matchIndices.addAll(lowerQuery.matchingRanges(lowerText))
-                for (token in tokens) {
-                    matchIndices.addAll(token.matchingRanges(lowerText))
-                }
-
-                // Sort and merge overlapping ranges
-                val mergedMatches = matchIndices.mergeRanges()
+                val matchIndices = text.matchingRanges(query, processor = { it.lowercase() })
 
                 var lastIndex = 0
-                for (range in mergedMatches) {
+                for (range in matchIndices) {
                     if (range.first > lastIndex) {
                         append(text.substring(lastIndex, range.first))
                     }
                     withStyle(
                         style = SpanStyle(
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF3F51B5),
                             background = Color.Yellow
                         )
                     ) {
@@ -287,22 +257,4 @@ fun QuoteItem(text: String, query: String, score: Int) {
             )
         }
     }
-}
-
-private fun List<IntRange>.mergeRanges(): List<IntRange> {
-    if (isEmpty()) return emptyList()
-    val sorted = sortedBy { it.first }
-    val result = mutableListOf<IntRange>()
-    var current = sorted[0]
-    for (i in 1 until sorted.size) {
-        val next = sorted[i]
-        if (next.first <= current.last + 1) {
-            current = current.first..maxOf(current.last, next.last)
-        } else {
-            result.add(current)
-            current = next
-        }
-    }
-    result.add(current)
-    return result
 }
