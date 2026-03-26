@@ -1,5 +1,6 @@
 package com.github.terrakok.fuzzykot
 
+@Suppress("UNCHECKED_CAST")
 internal class PriorityQueue<T>(size: Int, private val comparator: Comparator<T?>? = null) : Collection<T> {
     override var size: Int = 0
         private set
