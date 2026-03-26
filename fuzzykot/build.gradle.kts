@@ -50,7 +50,7 @@ mavenPublishing {
     pom {
         name = "FuzzyKot"
         description = "Kotlin Multiplatform library"
-        url = "github url" //todo
+        url = "https://github.com/terrakok/FuzzyKot"
 
         licenses {
             license {
@@ -61,14 +61,14 @@ mavenPublishing {
 
         developers {
             developer {
-                id = "" //todo github nickname
-                name = "" //todo full name
-                email = "" //todo email
+                id = "terrakok"
+                name = "Konstantin Tskhovrebov"
+                email = "terrakok@gmail.com"
             }
         }
 
         scm {
-            url = "github url" //todo
+            url = "https://github.com/terrakok/FuzzyKot"
         }
     }
     if (project.hasProperty("signing.keyId")) signAllPublications()

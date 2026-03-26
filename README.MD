@@ -31,8 +31,9 @@ provides a set of algorithms to handle typos, variations in word order, and part
 
 ## Setup
 
+Latest version: [![Maven Central](https://img.shields.io/maven-central/v/com.github.terrakok/fuzzykot)](https://central.sonatype.com/artifact/com.github.terrakok/fuzzykot)
 ```kotlin
-implementation("com.github.terrakok:fuzzykot:[todo]")
+implementation("com.github.terrakok:fuzzykot:1.0.0")
 ```
 
 ## Usage
