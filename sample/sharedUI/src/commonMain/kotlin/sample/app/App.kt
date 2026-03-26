@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.sp
 import com.github.terrakok.fuzzykot.ExtractedResult
 import com.github.terrakok.fuzzykot.extractSorted
 import com.github.terrakok.fuzzykot.fuzzyMatchingRanges
+import com.github.terrakok.fuzzykot.partialRatio
+import com.github.terrakok.fuzzykot.ratio
+import com.github.terrakok.fuzzykot.tokenSetRatio
 
 private val quotes = listOf(
     "I'm going to make him an offer he can't refuse.",
@@ -199,7 +202,7 @@ fun App() {
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(results) { res ->
-                            QuoteItem(res.string, query)
+                            QuoteItem(res.string, query, res.score)
                         }
                     }
                 }
@@ -209,7 +212,7 @@ fun App() {
 }
 
 @Composable
-fun QuoteItem(text: String, query: String) {
+fun QuoteItem(text: String, query: String, score: Int) {
     val annotatedString = remember(text, query) {
         if (query.isBlank()) {
             AnnotatedString(text)
@@ -268,7 +271,22 @@ fun QuoteItem(text: String, query: String) {
             }
         }
     }
-    Text(text = annotatedString, style = MaterialTheme.typography.bodyMedium)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = annotatedString,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        if (query.isNotBlank()) {
+            Text(
+                text = "$score%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray.copy(alpha = 0.5f),
+            )
+        }
+    }
 }
 
 private fun List<IntRange>.mergeRanges(): List<IntRange> {
