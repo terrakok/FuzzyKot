@@ -5,12 +5,30 @@ import kotlin.math.min
 import kotlin.math.round
 
 object Levenshtein {
+    /**
+     * Calculates the Levenshtein distance ratio between two strings.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is no pre-processing).
+     * @return Similarity score between 0 and 100.
+     */
     fun ratio(s1: String, s2: String, processor: (String) -> String = { it }): Int {
         val p1 = processor(s1)
         val p2 = processor(s2)
         return round(100 * basicRatio(p1, p2)).toInt()
     }
 
+    /**
+     * Finds the best match of the shorter string within the longer string.
+     *
+     * Useful for finding substrings.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is no pre-processing).
+     * @return Similarity score between 0 and 100.
+     */
     fun partialRatio(s1: String, s2: String, processor: (String) -> String = { it }): Int {
         val p1 = processor(s1)
         val p2 = processor(s2)
@@ -49,18 +67,46 @@ object Levenshtein {
         return round(100 * (scores.maxOrNull() ?: 0.0)).toInt()
     }
 
+    /**
+     * Sorts the tokens in each string alphabetically and then calculates the ratio.
+     *
+     * Useful when the order of words doesn't matter.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is lowercase).
+     * @return Similarity score between 0 and 100.
+     */
     fun tokenSortRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
         val sorted1 = processAndSort(s1, processor)
         val sorted2 = processAndSort(s2, processor)
         return ratio(sorted1, sorted2)
     }
 
+    /**
+     * Sorts the tokens in each string alphabetically and then calculates the partial ratio.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is lowercase).
+     * @return Similarity score between 0 and 100.
+     */
     fun tokenSortPartialRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
         val sorted1 = processAndSort(s1, processor)
         val sorted2 = processAndSort(s2, processor)
         return partialRatio(sorted1, sorted2)
     }
 
+    /**
+     * Splits strings into tokens and compares the intersection and differences.
+     *
+     * Highly effective when the strings have a different number of words.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is lowercase).
+     * @return Similarity score between 0 and 100.
+     */
     fun tokenSetRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
         val p1 = processor(s1)
         val p2 = processor(s2)
@@ -83,6 +129,14 @@ object Levenshtein {
         )
     }
 
+    /**
+     * Splits strings into tokens and compares the intersection and differences using partial ratio.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is lowercase).
+     * @return Similarity score between 0 and 100.
+     */
     fun tokenSetPartialRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
         val p1 = processor(s1)
         val p2 = processor(s2)
@@ -105,6 +159,16 @@ object Levenshtein {
         )
     }
 
+    /**
+     * Calculates a weighted average of different ratios (ratio, partialRatio, tokenSortRatio, tokenSetRatio).
+     *
+     * This is usually the best general-purpose fuzzy matching function.
+     *
+     * @param s1 First string.
+     * @param s2 Second string.
+     * @param processor Function to pre-process the strings (default is lowercase).
+     * @return Similarity score between 0 and 100.
+     */
     fun weightedRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
         val p1 = processor(s1)
         val p2 = processor(s2)
@@ -135,6 +199,14 @@ object Levenshtein {
         }
     }
 
+    /**
+     * Finds the ranges in the second string ([s2]) that match characters in the first string ([s1]).
+     *
+     * @param s1 First string (query).
+     * @param s2 Second string (target).
+     * @param processor Function to pre-process the strings (default is no pre-processing).
+     * @return List of matching character ranges in [s2].
+     */
     fun matchingRanges(s1: String, s2: String, processor: (String) -> String = { it }): List<IntRange> {
         val p1 = processor(s1)
         val p2 = processor(s2)

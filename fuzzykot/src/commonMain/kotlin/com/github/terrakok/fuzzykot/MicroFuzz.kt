@@ -1,12 +1,14 @@
 package com.github.terrakok.fuzzykot
 
 import com.github.terrakok.fuzzykot.MicroFuzz.Strategy
-import kotlin.math.min
 
 /**
  * Port of the microfuzz library logic (https://github.com/Nozbe/microfuzz).
  */
 object MicroFuzz {
+    /**
+     * Matching strategy for microfuzz.
+     */
     enum class Strategy {
         /**
          * Finds the first occurrence of each character in order.
@@ -19,6 +21,14 @@ object MicroFuzz {
         SMART
     }
 
+    /**
+     * Calculates the fuzzy matching ratio between the query and target using microfuzz logic.
+     *
+     * @param query The search query.
+     * @param target The string to search in.
+     * @param strategy The matching strategy to use (default is [Strategy.SMART]).
+     * @return Similarity score between 0 and 100.
+     */
     fun ratio(
         query: String,
         target: String,
@@ -34,6 +44,11 @@ object MicroFuzz {
 
     /**
      * Finds matching ranges between the query and target using microfuzz logic.
+     *
+     * @param query The search query.
+     * @param target The string to search in.
+     * @param strategy The matching strategy to use (default is [Strategy.SMART]).
+     * @return List of matching character ranges in the target string.
      */
     fun matchingRanges(
         query: String,
