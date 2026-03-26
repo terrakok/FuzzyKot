@@ -6,27 +6,27 @@ import kotlin.test.assertEquals
 class TokenSetRatioTest {
     @Test
     fun testExactMatchWithDuplicates() {
-        assertEquals(100, "my myself".tokenSetRatio("myself my my"))
+        assertEquals(100, Levenshtein.tokenSetRatio("my myself", "myself my my"))
     }
 
     @Test
     fun testOrderAndDuplicates() {
-        assertEquals(100, "order is not important".tokenSetRatio("important is not order order"))
+        assertEquals(100, Levenshtein.tokenSetRatio("order is not important", "important is not order order"))
     }
 
     @Test
     fun testPartialSetMatch() {
         // "mariners" vs "mariners vs angels"
-        assertEquals(100, "mariners".tokenSetRatio("mariners vs angels"))
+        assertEquals(100, Levenshtein.tokenSetRatio("mariners", "mariners vs angels"))
     }
 
     @Test
     fun testEmptyStrings() {
-        assertEquals(100, "".tokenSetRatio(""))
+        assertEquals(100, Levenshtein.tokenSetRatio("", ""))
     }
 
     @Test
     fun testTotallyDifferent() {
-        assertEquals(0, "abc".tokenSetRatio("def"))
+        assertEquals(0, Levenshtein.tokenSetRatio("abc", "def"))
     }
 }

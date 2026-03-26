@@ -13,11 +13,11 @@ class ExtractSortedTest {
         assertEquals("myself", results[0].string)
         assertEquals(100, results[0].score)
         assertEquals("my self", results[1].string)
-        assertEquals(92, results[1].score)
-        assertEquals("me self", results[2].string)
-        assertEquals(77, results[2].score)
-        assertEquals("not me", results[3].string)
-        assertEquals(33, results[3].score)
+        assertEquals(88, results[1].score)
+        assertEquals("not me", results[2].string)
+        assertEquals(0, results[2].score)
+        assertEquals("me self", results[3].string)
+        assertEquals(0, results[3].score)
     }
 
     @Test
@@ -32,7 +32,7 @@ class ExtractSortedTest {
     @Test
     fun testWithCutoff() {
         val choices = listOf("myself", "me self", "my self", "not me")
-        val results = choices.extractSorted("myself", cutoff = 90)
+        val results = choices.extractSorted("myself", cutoff = 70)
         assertEquals(2, results.size)
         assertEquals("myself", results[0].string)
         assertEquals("my self", results[1].string)

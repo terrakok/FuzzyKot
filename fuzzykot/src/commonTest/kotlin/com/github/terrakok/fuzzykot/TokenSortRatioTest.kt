@@ -6,37 +6,37 @@ import kotlin.test.assertEquals
 class TokenSortRatioTest {
     @Test
     fun testExactMatchAfterSort() {
-        assertEquals(100, "my myself".tokenSortRatio("myself my"))
+        assertEquals(100, Levenshtein.tokenSortRatio("my myself", "myself my"))
     }
 
     @Test
     fun testOrderIsNotImportant() {
-        assertEquals(100, "order is not important".tokenSortRatio("important is not order"))
+        assertEquals(100, Levenshtein.tokenSortRatio("order is not important", "important is not order"))
     }
 
     @Test
     fun testCaseInsensitiveByDefault() {
-        assertEquals(100, "MYSELF MY".tokenSortRatio("myself my"))
+        assertEquals(100, Levenshtein.tokenSortRatio("MYSELF MY", "myself my"))
     }
 
     @Test
     fun testPartialMatch() {
-        assertEquals(77, "myself".tokenSortRatio("me self"))
+        assertEquals(77, Levenshtein.tokenSortRatio("myself", "me self"))
     }
 
     @Test
     fun testEmptyStrings() {
-        assertEquals(100, "".tokenSortRatio(""))
+        assertEquals(100, Levenshtein.tokenSortRatio("", ""))
     }
 
     @Test
     fun testMultipleSpaces() {
-        assertEquals(100, "my  myself".tokenSortRatio("myself   my"))
+        assertEquals(100, Levenshtein.tokenSortRatio("my  myself", "myself   my"))
     }
 
     @Test
     fun testWithDifferentProcessor() {
         // use original case
-        assertEquals(11, "MYSELF MY".tokenSortRatio("myself my", processor = { it }))
+        assertEquals(11, Levenshtein.tokenSortRatio("MYSELF MY", "myself my", processor = { it }))
     }
 }

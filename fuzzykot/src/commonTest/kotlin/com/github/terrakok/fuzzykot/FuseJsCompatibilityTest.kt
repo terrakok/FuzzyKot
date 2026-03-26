@@ -97,7 +97,7 @@ class FuseJsCompatibilityTest {
     @Test
     fun deepKey_typoHmlt_findsHTML5() {
         // Fuse.js: custom getFn search — "Hmlt" is a fuzzy match for "HTML5"
-        val result = bookList.extractOne("Hmlt", processor = { it.title })
+        val result = bookList.extractOne("Hmlt", processor = { it.title }, scorer = Levenshtein::ratio)
         assertNotNull(result)
         assertEquals("HTML5", result.string)
     }
@@ -165,7 +165,7 @@ class FuseJsCompatibilityTest {
         // "Stove" vs "Steve" → partialRatio < 100 (one character difference)
         val results = steveList.extractSorted(
             "Steve",
-            scorer = { s1, s2 -> s1.partialRatio(s2, processor = { it.lowercase() }) }
+            scorer = { s1, s2 -> Levenshtein.partialRatio(s1, s2, processor = { it.lowercase() }) }
         )
         assertEquals("My good friend Steve from college", results[0].string,
             "Long phrase should rank first when using partialRatio (it contains 'Steve' exactly)")
@@ -174,14 +174,14 @@ class FuseJsCompatibilityTest {
     @Test
     fun fieldNorm_stoveVsSteveDirectRatio() {
         // "Steve" vs "Stove": one character differs → ratio should be high (≥ 75)
-        val score = "Steve".ratio("Stove")
+        val score = Levenshtein.ratio("Steve", "Stove")
         assertTrue(score >= 75, "Steve vs Stove ratio should be ≥ 75, got $score")
     }
 
     @Test
     fun fieldNorm_steveInLongPhrase_partialRatioIs100() {
         // "Steve" is an exact substring of the long phrase
-        val score = "Steve".partialRatio("My good friend Steve from college")
+        val score = Levenshtein.partialRatio("Steve", "My good friend Steve from college")
         assertEquals(100, score)
     }
 
@@ -298,7 +298,8 @@ class FuseJsCompatibilityTest {
         // Fuse.js: search("where exctly is carmen in the world san diego") → the long text
         val result = textItems.extractOne(
             "where exactly is carmen in the world san diego",
-            processor = { it.text }
+            processor = { it.text },
+            scorer = Levenshtein::ratio
         )
         assertNotNull(result)
         assertEquals("where in the world is carmen san diego", result.referent.text)
@@ -328,10 +329,9 @@ class FuseJsCompatibilityTest {
     fun largeString_leverageStreams_withSpaces() {
         // Fuse.js: "leverage streams to" (space-separated) should still find the hyphen version
         val items = listOf("leverage-streams-to", "a completely different string", "streams for everyone")
-        val result = items.extractOne("leverage streams to")
+        val result = items.extractOne("leverage streams to", scorer = Levenshtein::ratio)
         assertNotNull(result)
-        // The hyphen-version is closest; verify it has the highest score among all items
-        val hyphenScore = items.extractOne("leverage streams to")?.score ?: 0
+        val hyphenScore = result.score
         assertTrue(hyphenScore > 0, "Score for 'leverage-streams-to' should be > 0 when querying 'leverage streams to'")
     }
 
@@ -393,7 +393,7 @@ class FuseJsCompatibilityTest {
     fun diacritics_accentedVsPlain_partialMatch() {
         // "deja" (without accent) vs "déjà" (with accent) — FuzzyKot sees them as different chars.
         // Score will be < 100 but > 0 due to the similar characters.
-        val score = "deja".ratio("déjà")
+        val score = Levenshtein.ratio("deja", "déjà")
         assertTrue(score > 0, "Even with diacritics mismatch, some characters match; score should be > 0, got $score")
         assertTrue(score < 100, "Without diacritic stripping, 'deja' and 'déjà' should not score 100, got $score")
     }
@@ -424,35 +424,35 @@ class FuseJsCompatibilityTest {
     @Test
     fun ratio_stoveVsSteve_highSimilarity() {
         // One-character difference between "Steve" and "Stove"
-        val score = "Steve".ratio("Stove")
+        val score = Levenshtein.ratio("Steve", "Stove")
         assertTrue(score >= 75, "Steve vs Stove should have ratio ≥ 75, got $score")
         assertTrue(score < 100, "Steve vs Stove should not be a perfect match, got $score")
     }
 
     @Test
     fun ratio_html5VsHmlt_moderateSimilarity() {
-        val score = "HTML5".ratio("Hmlt", processor = { it.lowercase() })
+        val score = Levenshtein.ratio("HTML5", "Hmlt", processor = { it.lowercase() })
         assertTrue(score >= 40, "HTML5 vs Hmlt should have ratio ≥ 40, got $score")
     }
 
     @Test
     fun partialRatio_substr_alwaysHighScore() {
         // "ran" is a substring of "Orange" (case-insensitive)
-        val score = "ran".partialRatio("Orange", processor = { it.lowercase() })
+        val score = Levenshtein.partialRatio("ran", "Orange", processor = { it.lowercase() })
         assertEquals(100, score)
     }
 
     @Test
     fun partialRatio_nan_inBanana() {
         // "nan" is a substring of "Banana" (case-insensitive)
-        val score = "nan".partialRatio("Banana", processor = { it.lowercase() })
+        val score = Levenshtein.partialRatio("nan", "Banana", processor = { it.lowercase() })
         assertEquals(100, score)
     }
 
     @Test
     fun partialRatio_nonfiction_inTag() {
         // "nonfiction" as exact tag value
-        val score = "nonfiction".partialRatio("web development nonfiction")
+        val score = Levenshtein.partialRatio("nonfiction", "web development nonfiction")
         assertEquals(100, score)
     }
 }

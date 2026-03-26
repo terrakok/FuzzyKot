@@ -6,37 +6,37 @@ import kotlin.test.assertEquals
 class WeightedRatioTest {
     @Test
     fun testExactMatch() {
-        assertEquals(100, "myself".weightedRatio("myself"))
+        assertEquals(100, Levenshtein.weightedRatio("myself", "myself"))
     }
 
     @Test
     fun testPartialMatch() {
-        assertEquals(77, "myself".weightedRatio("me self"))
+        assertEquals(77, Levenshtein.weightedRatio("me self", "myself"))
     }
 
     @Test
     fun testCaseInsensitiveByDefault() {
-        assertEquals(100, "MYSELF".weightedRatio("myself"))
+        assertEquals(100, Levenshtein.weightedRatio("MYSELF", "myself"))
     }
 
     @Test
     fun testEmptyStrings() {
-        assertEquals(0, "".weightedRatio(""))
+        assertEquals(0, Levenshtein.weightedRatio("", ""))
     }
 
     @Test
     fun testOneEmptyString() {
-        assertEquals(0, "abc".weightedRatio(""))
-        assertEquals(0, "".weightedRatio("abc"))
+        assertEquals(0, Levenshtein.weightedRatio("abc", ""))
+        assertEquals(0, Levenshtein.weightedRatio("", "abc"))
     }
 
     @Test
     fun testLongerString() {
-        assertEquals(90, "test".weightedRatio("this is a test"))
+        assertEquals(90, Levenshtein.weightedRatio("test", "this is a test"))
     }
 
     @Test
     fun testTokenSortImpact() {
-        assertEquals(95, "my myself".weightedRatio("myself my"))
+        assertEquals(95, Levenshtein.weightedRatio("my myself", "myself my"))
     }
 }

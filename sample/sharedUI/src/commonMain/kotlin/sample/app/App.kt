@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,10 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.terrakok.fuzzykot.ExtractedResult
 import com.github.terrakok.fuzzykot.extractSorted
-import com.github.terrakok.fuzzykot.fuzzyMatchingRanges
-import com.github.terrakok.fuzzykot.partialRatio
-import com.github.terrakok.fuzzykot.ratio
-import com.github.terrakok.fuzzykot.tokenSetRatio
+import com.github.terrakok.fuzzykot.matchingRanges
 
 private val quotes = listOf(
     "I'm going to make him an offer he can't refuse.",
@@ -140,7 +140,7 @@ fun App() {
                     ExtractedResult(s, s, 100, index)
                 }
             } else {
-                quotes.extractSorted(query)
+                quotes.extractSorted(query = query, cutoff = 25)
             }
         }
     }
@@ -241,9 +241,9 @@ fun QuoteItem(text: String, query: String, score: Int) {
                 }
 
                 // Find fuzzy matches
-                matchIndices.addAll(lowerQuery.fuzzyMatchingRanges(lowerText))
+                matchIndices.addAll(lowerQuery.matchingRanges(lowerText))
                 for (token in tokens) {
-                    matchIndices.addAll(token.fuzzyMatchingRanges(lowerText))
+                    matchIndices.addAll(token.matchingRanges(lowerText))
                 }
 
                 // Sort and merge overlapping ranges

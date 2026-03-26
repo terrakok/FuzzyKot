@@ -11,9 +11,9 @@ class ExtractAllTest {
         val results = choices.extractAll("myself")
         assertEquals(4, results.size)
         assertEquals(100, results.find { it.string == "myself" }?.score)
-        assertEquals(77, results.find { it.string == "me self" }?.score)
-        assertEquals(92, results.find { it.string == "my self" }?.score)
-        assertEquals(33, results.find { it.string == "not me" }?.score)
+        assertEquals(88, results.find { it.string == "my self" }?.score)
+        assertEquals(0, results.find { it.string == "not me" }?.score)
+        assertEquals(0, results.find { it.string == "me self" }?.score)
     }
 
     @Test

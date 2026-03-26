@@ -29,94 +29,16 @@ provides a set of algorithms to handle typos, variations in word order, and part
 - **Easy Extraction:** High-level API to extract the best matches from collections.
 - **Performance:** Optimized for speed and low memory footprint.
 
-## Usage
-
-FuzzyKot provides extension functions for `String` and `Collection<T>` for easy fuzzy matching and extraction.
-
-### Simple Ratio
-
-Calculates a simple Levenshtein distance ratio between two strings.
-
-```kotlin
-"this is a test".ratio("this is a test!") // 97
-```
-
-### Partial Ratio
-
-Finds the best match of the shorter string within the longer one.
-
-```kotlin
-"this is a test".partialRatio("this is a test!") // 100
-```
-
-### Token Sort Ratio
-
-Tokens are split, sorted alphabetically, and then joined back to compare. This handles different word orders.
-
-```kotlin
-"fuzzy wuzzy was a bear".tokenSortRatio("wuzzy fuzzy was a bear") // 100
-```
-
-### Token Set Ratio
-
-Handles differences in token sets by comparing intersection and symmetric difference. This is robust against duplicate
-tokens.
-
-```kotlin
-"fuzzy was a bear".tokenSetRatio("fuzzy fuzzy was a bear") // 100
-```
-
-### Weighted Ratio
-
-Combines multiple algorithms with specific weights to give a better overall score.
-
-```kotlin
-"The quick brown fox jumps over the lazy dog".weightedRatio("The quick brown fox jumps") // 60
-```
-
-### Matching Ranges
-
-Finds matching blocks between two strings. Useful for highlighting matching pieces in fuzzy search results.
-
-```kotlin
-"test".fuzzyMatchingRanges("this is a test!") // [10..13]
-```
-
-### Extraction
-
-Extract the best matches from a collection of items.
-
-```kotlin
-val options = listOf("Atlanta Falcons", "New York Jets", "New York Giants", "Dallas Cowboys")
-
-// Get the best match
-val bestMatch = options.extractOne("cowboys")
-
-// Get top N matches
-val topMatches = options.extractTop("new york", limit = 2)
-
-// Get all matches sorted by score
-val sortedMatches = options.extractSorted("new york")
-```
-
-#### Custom Extraction
-
-You can customize how items are processed and which scorer is used.
-
-```kotlin
-options.extractOne(
-    query = "cowboys",
-    processor = { it.uppercase() },
-    scorer = { s1, s2 -> s1.ratio(s2) },
-    cutoff = 60
-)
-```
-
 ## Setup
 
 ```kotlin
 implementation("com.github.terrakok:fuzzykot:[todo]")
 ```
+
+## Usage
+
+FuzzyKot provides easy-to-use APIs for fuzzy matching and extraction.
+
 
 ## License
 

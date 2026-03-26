@@ -6,43 +6,43 @@ import kotlin.test.assertEquals
 class RatioTest {
     @Test
     fun testExactMatch() {
-        assertEquals(100, "myself".ratio("myself"))
+        assertEquals(100, Levenshtein.ratio("myself", "myself"))
     }
 
     @Test
     fun testEmptyStrings() {
-        assertEquals(100, "".ratio(""))
+        assertEquals(100, Levenshtein.ratio("", ""))
     }
 
     @Test
     fun testOneEmptyString() {
-        assertEquals(0, "abc".ratio(""))
-        assertEquals(0, "".ratio("abc"))
+        assertEquals(0, Levenshtein.ratio("abc", ""))
+        assertEquals(0, Levenshtein.ratio("", "abc"))
     }
 
     @Test
     fun testTotallyDifferent() {
-        assertEquals(0, "abc".ratio("def"))
+        assertEquals(0, Levenshtein.ratio("abc", "def"))
     }
 
     @Test
     fun testPartialMatch() {
-        assertEquals(77, "myself".ratio("me self"))
+        assertEquals(77, Levenshtein.ratio("myself", "me self"))
     }
 
     @Test
     fun testCaseSensitivity() {
         // ratio is case sensitive by default
-        assertEquals(0, "MYSELF".ratio("myself"))
+        assertEquals(0, Levenshtein.ratio("MYSELF", "myself"))
     }
 
     @Test
     fun testWithProcessor() {
-        assertEquals(100, "MYSELF".ratio("myself", processor = { it.lowercase() }))
+        assertEquals(100, Levenshtein.ratio("MYSELF", "myself", processor = { it.lowercase() }))
     }
 
     @Test
     fun testLengthDifference() {
-        assertEquals(75, "abc".ratio("abcde"))
+        assertEquals(75, Levenshtein.ratio("abc", "abcde"))
     }
 }

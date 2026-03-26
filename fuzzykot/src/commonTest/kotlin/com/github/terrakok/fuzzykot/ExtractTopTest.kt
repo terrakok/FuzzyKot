@@ -12,7 +12,7 @@ class ExtractTopTest {
         assertEquals("myself", results[0].string)
         assertEquals(100, results[0].score)
         assertEquals("my self", results[1].string)
-        assertEquals(92, results[1].score)
+        assertEquals(88, results[1].score)
     }
 
     @Test
@@ -47,7 +47,7 @@ class ExtractTopTest {
     @Test
     fun testWithCutoff() {
         val choices = listOf("myself", "me self", "my self", "not me")
-        val results = choices.extractTop("myself", limit = 10, cutoff = 90)
+        val results = choices.extractTop("myself", limit = 10, cutoff = 70)
         assertEquals(2, results.size)
     }
 }

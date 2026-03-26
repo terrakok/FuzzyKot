@@ -1,5 +1,164 @@
 package com.github.terrakok.fuzzykot
 
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.round
+
+object Levenshtein {
+    fun ratio(s1: String, s2: String, processor: (String) -> String = { it }): Int {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+        return round(100 * basicRatio(p1, p2)).toInt()
+    }
+
+    fun partialRatio(s1: String, s2: String, processor: (String) -> String = { it }): Int {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+
+        val shorter: String
+        val longer: String
+
+        if (p1.length < p2.length) {
+            shorter = p1
+            longer = p2
+        } else {
+            shorter = p2
+            longer = p1
+        }
+
+        if (shorter.isEmpty()) {
+            return if (longer.isEmpty()) 100 else 0
+        }
+
+        val matchingBlocks = getMatchingBlocks(shorter.length, longer.length, getEditOps(shorter, longer))
+        val scores = mutableListOf<Double>()
+
+        for (mb in matchingBlocks) {
+            val dist = mb.dpos - mb.spos
+            val longStart = if (dist > 0) dist else 0
+            var longEnd = longStart + shorter.length
+            if (longEnd > longer.length) longEnd = longer.length
+
+            val longSubstr = longer.substring(longStart, longEnd)
+            val ratio = basicRatio(shorter, longSubstr)
+
+            if (ratio > .995) return 100
+            scores.add(ratio)
+        }
+
+        return round(100 * (scores.maxOrNull() ?: 0.0)).toInt()
+    }
+
+    fun tokenSortRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
+        val sorted1 = processAndSort(s1, processor)
+        val sorted2 = processAndSort(s2, processor)
+        return ratio(sorted1, sorted2)
+    }
+
+    fun tokenSortPartialRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
+        val sorted1 = processAndSort(s1, processor)
+        val sorted2 = processAndSort(s2, processor)
+        return partialRatio(sorted1, sorted2)
+    }
+
+    fun tokenSetRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+
+        val tokens1 = p1.tokenize().toSet()
+        val tokens2 = p2.tokenize().toSet()
+
+        val intersection = tokens1.intersect(tokens2)
+        val diff1to2 = tokens1.subtract(tokens2)
+        val diff2to1 = tokens2.subtract(tokens1)
+
+        val sortedIntersection = intersection.sorted().joinToString(" ").trim()
+        val sortedDiff1to2 = (intersection + diff1to2).sorted().joinToString(" ").trim()
+        val sortedDiff2to1 = (intersection + diff2to1).sorted().joinToString(" ").trim()
+
+        return maxOf(
+            ratio(sortedIntersection, sortedDiff1to2),
+            ratio(sortedIntersection, sortedDiff2to1),
+            ratio(sortedDiff1to2, sortedDiff2to1)
+        )
+    }
+
+    fun tokenSetPartialRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+
+        val tokens1 = p1.tokenize().toSet()
+        val tokens2 = p2.tokenize().toSet()
+
+        val intersection = tokens1.intersect(tokens2)
+        val diff1to2 = tokens1.subtract(tokens2)
+        val diff2to1 = tokens2.subtract(tokens1)
+
+        val sortedIntersection = intersection.sorted().joinToString(" ").trim()
+        val sortedDiff1to2 = (intersection + diff1to2).sorted().joinToString(" ").trim()
+        val sortedDiff2to1 = (intersection + diff2to1).sorted().joinToString(" ").trim()
+
+        return maxOf(
+            partialRatio(sortedIntersection, sortedDiff1to2),
+            partialRatio(sortedIntersection, sortedDiff2to1),
+            partialRatio(sortedDiff1to2, sortedDiff2to1)
+        )
+    }
+
+    fun weightedRatio(s1: String, s2: String, processor: (String) -> String = { it.lowercase() }): Int {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+
+        if (p1.isEmpty() || p2.isEmpty()) return 0
+
+        val unbaseScale = 0.95
+        var partialScale = 0.90
+        val len1 = p1.length
+        val len2 = p2.length
+        val lenRatio = max(len1, len2).toDouble() / min(len1, len2)
+
+        val base = ratio(p1, p2)
+
+        if (lenRatio > 1.5) {
+            if (lenRatio > 8) partialScale = 0.6
+
+            val partial = partialRatio(p1, p2) * partialScale
+            val partialSor = tokenSortPartialRatio(p1, p2, { it }) * unbaseScale * partialScale
+            val partialSet = tokenSetPartialRatio(p1, p2, { it }) * unbaseScale * partialScale
+
+            return round(maxOf(base.toDouble(), partial, partialSor, partialSet)).toInt()
+        } else {
+            val tokenSort = tokenSortRatio(p1, p2, { it }) * unbaseScale
+            val tokenSet = tokenSetRatio(p1, p2, { it }) * unbaseScale
+
+            return round(maxOf(base.toDouble(), tokenSort, tokenSet)).toInt()
+        }
+    }
+
+    fun matchingRanges(s1: String, s2: String, processor: (String) -> String = { it }): List<IntRange> {
+        val p1 = processor(s1)
+        val p2 = processor(s2)
+        return getMatchingBlocks(p1.length, p2.length, getEditOps(p1, p2))
+            .filter { it.length > 0 }
+            .map { it.dpos until (it.dpos + it.length) }
+    }
+
+    private fun basicRatio(s1: String, s2: String): Double {
+        val len1 = s1.length
+        val len2 = s2.length
+        val lensum = len1 + len2
+        if (lensum == 0) return 1.0
+        val editDistance = levEditDistance(s1, s2, 1)
+        return (lensum - editDistance) / lensum.toDouble()
+    }
+
+    private fun processAndSort(input: String, processor: (String) -> String): String =
+        processor(input).tokenize().sorted().joinToString(" ").trim()
+
+    private fun String.tokenize(): List<String> =
+        split("\\s+".toRegex()).filter { it.isNotEmpty() }
+}
+
 private enum class EditType {
     DELETE,
     EQUAL,
@@ -16,14 +175,13 @@ private data class EditOp(
     override fun toString(): String = "${type?.name ?: "null"}($spos,$dpos)"
 }
 
-internal data class MatchingBlock(
+private data class MatchingBlock(
     val spos: Int = 0,
     val dpos: Int = 0,
     val length: Int = 0
 ) {
     override fun toString(): String = "($spos,$dpos,$length)"
 }
-
 
 private fun getEditOps(s1: String, s2: String): Array<EditOp> {
     var len1Copy = s1.length
@@ -180,8 +338,6 @@ private fun editOpsFromCostMatrix(
     return ops.requireNoNulls()
 }
 
-internal fun getMatchingBlocks(s1: String, s2: String): Array<MatchingBlock> =
-    getMatchingBlocks(s1.length, s2.length, getEditOps(s1, s2))
 
 private fun getMatchingBlocks(len1: Int, len2: Int, ops: Array<EditOp>): Array<MatchingBlock> {
     val n = ops.size
@@ -442,13 +598,4 @@ private fun memchr(haystack: String, offset: Int, needle: Char, num: Int): Int {
         } while (--numCopy != 0)
     }
     return 0
-}
-
-internal fun getRatio(s1: String, s2: String): Double {
-    val len1 = s1.length
-    val len2 = s2.length
-    val lensum = len1 + len2
-    if (lensum == 0) return 1.0
-    val editDistance = levEditDistance(s1, s2, 1)
-    return (lensum - editDistance) / lensum.toDouble()
 }
